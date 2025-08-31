@@ -7,6 +7,11 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
+      use_make:
+        description: 'Build with MAKE?'
+        required: true
+        type: boolean
+        default: true
       release_type:
         description: "Choose Release Type"
         required: true
@@ -15,12 +20,12 @@ on:
           - Actions
           - Pre-Release
           - Release
-        default: Actions
+        default: Pre-Release
       include_wild:
         description: 'Include WILD?'
         required: true
         type: boolean
-        default: false
+        default: true
       include_ksu:
         description: 'Include KSU?'
         required: true
@@ -30,7 +35,7 @@ on:
         description: 'Include NEXT?'
         required: true
         type: boolean
-        default: true
+        default: false
       include_mksu:
         description: 'Include MKSU?'
         required: true
@@ -50,7 +55,8 @@ on:
         required: false
         type: string
         default: ""
-jobs:       
+
+jobs:          
   set-matrix:
     runs-on: ubuntu-latest
     timeout-minutes: 120
@@ -77,6 +83,7 @@ jobs:
       kernelsu_variant: ${{ matrix.kernelsu_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      use_make: ${{ inputs.use_make }}
 
   build-kernels-a13:
     needs: set-matrix
@@ -89,6 +96,7 @@ jobs:
       kernelsu_variant: ${{ matrix.kernelsu_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      use_make: ${{ inputs.use_make }}
 
   build-kernels-a14:
     needs: set-matrix
@@ -101,6 +109,7 @@ jobs:
       kernelsu_variant: ${{ matrix.kernelsu_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      use_make: ${{ inputs.use_make }}
 
   build-kernels-a15:
     needs: set-matrix
@@ -113,6 +122,7 @@ jobs:
       kernelsu_variant: ${{ matrix.kernelsu_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      use_make: ${{ inputs.use_make }}
 
   release:
     if: ${{ inputs.release_type == 'Release' || inputs.release_type == 'Pre-Release' }}
@@ -124,7 +134,8 @@ jobs:
       - build-kernels-a15
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      RELEASE_NAME: "GKI Kernels With KernelSU Next & SUSFS v1.5.9"
+      RELEASE_NAME: "GKI Kernels With WildKSU & SUSFS v1.5.9"
+      RELEASE_BODY:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -179,8 +190,7 @@ jobs:
           get_ref "WILD" "https://github.com/WildKernels/Wild_KSU.git" "WildKernels/Wild_KSU" "$MODE"
           get_ref "KSU" "https://github.com/tiann/KernelSU.git" "tiann/KernelSU" "$MODE"
           get_ref "NEXT" "https://github.com/KernelSU-Next/KernelSU-Next.git" "KernelSU-Next/KernelSU-Next" "$MODE"
-          get_ref "MKSU" "https://github.com/5ec1cff/KernelSU.git" "5ec1cff/KernelSU" "commit"
-
+          
       - name: Generate and Create New Tag
         run: |
             LATEST_TAG=$(gh api repos/${{ github.repository }}/tags --jq '.[0].name')
@@ -204,13 +214,10 @@ jobs:
       - name: Set release body
         run: |
           cat << 'EOF' > release_body.md
-          
-          Branch type for KSU: ${{ inputs.kernelsu_branch }}
-          Current Kernel Tag: ${{ env.NEW_TAG }}
       
           Features:
-          -> KernelSU Kernels & Others
-          -> Multi Manager Support for Wild Kernels & Next Kernels (Not Recommended)
+          -> Wild KSU Kernels & Others
+          -> Multi Manager Support for Wild KSU Manager & KernelSU Next Manager (Only Install One)
           -> SUSFS ඞ v1.5.9
           -> Scope-Minimized Manual hooks v1.4
           -> Magic Mount Support
@@ -220,24 +227,20 @@ jobs:
           -> BBR Support
       
           Notes:
-          -> Wild KSU & KernelSU-Next, SUS SU Mode 2 will show as disabled or not compatble due to non-kprobe hooks and is not needed anymore!
+          -> Wild KSU & KernelSU Next, SUS SU Mode 2 will show as disabled or not compatble due to non-kprobe hooks and is not needed anymore!
           -> Official Kernel Flasher is broken with latest susfs, try https://github.com/fatalcoder524/KernelFlasher/ or https://github.com/libxzr/HorizonKernelFlasher!
       
           Module: 
           -> https://github.com/sidex15/ksu_module_susfs
       
           Managers:
-          -> Wild KSU: https://github.com/WildKernels/Wild_KSU / https://t.me/WildKernels
-          -> KernelSU: https://github.com/tiann/KernelSU / https://t.me/KernelSU_group
-          -> 5ec1cff's KernelSU: https://github.com/5ec1cff/KernelSU / https://t.me/mksu_ci
-          -> KernelSU-Next: https://github.com/rifsxd/KernelSU-Next / https://t.me/ksunext_group
-          -> rsuntk: https://github.com/rsuntk/KernelSU / https://t.me/rsukrnlsu
-          -> backslashxx: https://github.com/backslashxx/KernelSU
+          -> Wild KSU: https://github.com/WildKernels/Wild_KSU
+          -> KernelSU: https://github.com/tiann/KernelSU
+          -> KernelSU-Next: https://github.com/KernelSU-Next/KernelSU-Next
       
           Commit Hashes (at the time of release):
           -> Wild KSU: [${{ env.WILD_REF }}](${{ env.WILD_URL }})
           -> KernelSU: [${{ env.KSU_REF }}](${{ env.KSU_URL }})
-          -> 5ec1cff: [${{ env.MKSU_REF }}](${{ env.MKSU_URL }})
           -> KernelSU Next: [${{ env.NEXT_REF }}](${{ env.NEXT_URL }})
           -> SUSFS4KSU: 
             -> gki-android12-5.10: [${{ env.COMMIT_HASH_gki_android12_5_10 }}](${{ env.COMMIT_URL_gki_android12_5_10 }})
