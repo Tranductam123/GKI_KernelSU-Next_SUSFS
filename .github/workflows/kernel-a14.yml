@@ -17,7 +17,9 @@ on:
         required: false
         type: string
         default: ""
-
+      use_make:
+        required: true
+        type: boolean
 jobs:
   build-kernels-a14-5-15:
     strategy:
@@ -108,5 +110,6 @@ jobs:
       sub_level: ${{ matrix.sub_level }}
       os_patch_level: ${{ matrix.os_patch_level }}
       kernelsu_variant: ${{ inputs.kernelsu_variant }}
+      use_make: ${{ inputs.use_make }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other || '' }}
