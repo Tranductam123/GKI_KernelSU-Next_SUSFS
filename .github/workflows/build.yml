@@ -44,7 +44,7 @@ jobs:
       CCACHE_HARDLINK: "true"
 
     steps:
-      - name: Maximize Build Space
+      - : Maximize Build Space
         uses: AdityaGarg8/remove-unwanted-software@v5
         with:
           remove-dotnet: 'true'          # Frees ~2 GB
@@ -404,7 +404,9 @@ jobs:
           if [ -f "build/build.sh" ]; then
               perl -pi -e 's/-dirty//' ./common/scripts/setlocalversion
               perl -0777 -pi -e 's/(.*)(echo "\$res")/$1echo "\-v$KSUVER-Tam"/s' ./common/scripts/setlocalversion
-              perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 Fri Sep 05 04:30:00 UTC 2025"}' ./common/scripts/mkcompile_h
+              CURRENT_TIME=$(date -u +"%a %b %d %H:%M:%S UTC %Y")
+              echo "CURRENT_TIME=$CURRENT_TIME"
+          perl -pi -e "s{UTS_VERSION=\"\\\$\(echo \\\$UTS_VERSION \\\$CONFIG_FLAGS \\\$TIMESTAMP \\| cut -b -\\\$UTS_LEN\)\"}{UTS_VERSION=\"#1 $CURRENT_TIME\"}" ./common/scripts/mkcompile_h
           else
               #Remove -maybe-dirty
               perl -pi -e 's/-maybe-dirty//g' ./build/kernel/kleaf/impl/stamp.bzl
@@ -413,7 +415,7 @@ jobs:
               echo "CONFIG_LOCALVERSION=\"-v$KSUVER-Tam\"" >> ./common/arch/arm64/configs/gki_defconfig
 
               #Set Kernel Timestamp
-              perl -pi -e 's/build-timestamp = \$\(or \$\(KBUILD_BUILD_TIMESTAMP\), \$\(build-timestamp-auto\)\)/build-timestamp = "Fri Sep 05 04:30:00 UTC 2025"/' ./common/init/Makefile
+              perl -pi -e 's/build-timestamp = \$\(or \$\(KBUILD_BUILD_TIMESTAMP\), \$\(build-timestamp-auto\)\)/build-timestamp = $CURRENT_TIME/' ./common/init/Makefile
 
               #Remove Abi Exports and Error
               rm -rf ./common/android/abi_gki_protected_exports_*
