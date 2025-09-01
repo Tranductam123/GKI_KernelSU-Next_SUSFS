@@ -113,4 +113,3 @@ jobs:
       use_make: ${{ inputs.use_make }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other || '' }}
-      use_make: ${{ inputs.use_make }}
