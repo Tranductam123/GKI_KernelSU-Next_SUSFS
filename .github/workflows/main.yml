@@ -69,7 +69,7 @@ jobs:
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       use_make: ${{ inputs.use_make }}
-
+      set_name: ${{ inputs.set_name }}
   build-kernels-a13-5-15:
     name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_13-5.15${{ inputs.set_name }}
     uses: ./.github/workflows/kernel-a13-5-15.yml
