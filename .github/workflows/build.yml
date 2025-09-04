@@ -143,7 +143,7 @@ jobs:
                 echo "BRANCH=-s main" >> $GITHUB_ENV
               elif [[ "${{ inputs.kernelsu_variant }}" == "NEXT" ]]; then
                 echo "BRANCH=-s next" >> $GITHUB_ENV
-              elif [[ "${{ inputs.kernelsu_variant }}" == "WKSU" ]]; then
+              elif [[ "${{ inputs.kernelsu_variant }}" == "WILD" ]]; then
                 echo "BRANCH=-s wild" >> $GITHUB_ENV
               fi
               ;;
@@ -249,7 +249,7 @@ jobs:
           
           case "${{ inputs.kernelsu_variant }}" in
             "WKSU")
-              echo "Getting KSU Version for WKSU..."
+              echo "Getting KSU Version for WILD..."
               cd ./Wild_KSU
               BASE_VERSION=10200
               ;;
