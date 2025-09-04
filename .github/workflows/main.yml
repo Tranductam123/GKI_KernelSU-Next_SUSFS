@@ -46,6 +46,19 @@ on:
         default: ""
 
 jobs:
+  set-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          VARIANTS=()
+          [[ "${{ inputs.include_wild }}" == "true" ]] && VARIANTS+=("\"WILD\"")
+          [[ "${{ inputs.include_ksu }}" == "true" ]] && VARIANTS+=("\"KSU\"")
+          [[ "${{ inputs.include_next }}" == "true" ]] && VARIANTS+=("\"NEXT\"")
+          echo "matrix={\"kernelsu_variant\": [$(IFS=,; echo "${VARIANTS[*]}")]}" >> $GITHUB_OUTPUT
   build-kernels-a12-5-10:
     uses: ./.github/workflows/kernel-a12-5-10.yml
     secrets: inherit
