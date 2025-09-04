@@ -44,14 +44,9 @@ on:
         required: false
         type: string
         default: ""
-      set_name:
-        description: "Set your name on each jobs"
-        required: false
-        type: string
-        default: " (MAKE)"
 jobs:
   build-kernels-a12-5-10:
-    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_12-5.10${{ inputs.set_name }}
+    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_12-5.10
     uses: ./.github/workflows/kernel-a12-5-10.yml
     secrets: inherit
     with:
@@ -59,9 +54,8 @@ jobs:
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       use_make: ${{ inputs.use_make }}
-      set_name: ${{ inputs.set_name }}
   build-kernels-a13-5-10:
-    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_13-5.10${{ inputs.set_name }}
+    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_13-5.10
     uses: ./.github/workflows/kernel-a13-5-10.yml
     secrets: inherit
     with:
@@ -69,9 +63,8 @@ jobs:
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       use_make: ${{ inputs.use_make }}
-      set_name: ${{ inputs.set_name }}
   build-kernels-a13-5-15:
-    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_13-5.15${{ inputs.set_name }}
+    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_13-5.15
     uses: ./.github/workflows/kernel-a13-5-15.yml
     secrets: inherit
     with:
@@ -79,9 +72,8 @@ jobs:
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       use_make: ${{ inputs.use_make }}
-      set_name: ${{ inputs.set_name }}
   build-kernels-a14-5-15:
-    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_14-5.15${{ inputs.set_name }}
+    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_14-5.15
     uses: ./.github/workflows/kernel-a14-5-15.yml
     secrets: inherit
     with:
@@ -89,9 +81,8 @@ jobs:
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       use_make: ${{ inputs.use_make }}
-      set_name: ${{ inputs.set_name }}
   build-kernels-a14-6-1:
-    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_14-6.1${{ inputs.set_name }}
+    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_14-6.1
     uses: ./.github/workflows/kernel-a14-6-1.yml
     secrets: inherit
     with:
@@ -99,9 +90,8 @@ jobs:
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       use_make: ${{ inputs.use_make }}
-      set_name: ${{ inputs.set_name }}
   build-kernels-a15-6-6:
-    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_15-6.6${{ inputs.set_name }}
+    name: ${{ inputs.kernel_variant }}-v${{ inputs.kernel_version }}-Android_15-6.6
     uses: ./.github/workflows/kernel-a15-6-6.yml
     secrets: inherit
     with:
@@ -109,7 +99,6 @@ jobs:
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
       use_make: ${{ inputs.use_make }}
-      set_name: ${{ inputs.set_name }}
   release:
     if: ${{ inputs.release_type == 'Release' || inputs.release_type == 'Pre-Release' }}
     runs-on: ubuntu-latest
