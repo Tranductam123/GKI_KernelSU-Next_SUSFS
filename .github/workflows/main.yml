@@ -60,6 +60,7 @@ jobs:
           [[ "${{ inputs.include_next }}" == "true" ]] && VARIANTS+=("\"NEXT\"")
           echo "matrix={\"kernelsu_variant\": [$(IFS=,; echo "${VARIANTS[*]}")]}" >> $GITHUB_OUTPUT
   build-kernels-a12-5-10:
+    needs: set-matrix
     uses: ./.github/workflows/kernel-a12-5-10.yml
     secrets: inherit
     with:
@@ -69,6 +70,7 @@ jobs:
       use_make: ${{ inputs.use_make }}
 
   build-kernels-a13-5-10:
+    needs: set-matrix
     uses: ./.github/workflows/kernel-a13-5-10.yml
     secrets: inherit
     with:
@@ -78,6 +80,7 @@ jobs:
       use_make: ${{ inputs.use_make }}
 
   build-kernels-a13-5-15:
+    needs: set-matrix
     uses: ./.github/workflows/kernel-a13-5-15.yml
     secrets: inherit
     with:
@@ -87,6 +90,7 @@ jobs:
       use_make: ${{ inputs.use_make }}
 
   build-kernels-a14-5-15:
+    needs: set-matrix
     uses: ./.github/workflows/kernel-a14-5-15.yml
     secrets: inherit
     with:
@@ -96,6 +100,7 @@ jobs:
       use_make: ${{ inputs.use_make }}
 
   build-kernels-a14-6-1:
+    needs: set-matrix
     uses: ./.github/workflows/kernel-a14-6-1.yml
     secrets: inherit
     with:
@@ -105,6 +110,7 @@ jobs:
       use_make: ${{ inputs.use_make }}
 
   build-kernels-a15-6-6:
+    needs: set-matrix
     uses: ./.github/workflows/kernel-a15-6-6.yml
     secrets: inherit
     with:
