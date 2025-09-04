@@ -47,7 +47,7 @@ on:
 
 jobs:
   build-kernels-a12-5-10:
-    name: ${{ inputs.kernel_variant }}-${{ inputs.kernel_version }}-Android_12-5.10${{ inputs.use_make && ' (MAKE)' || '' }
+    name: ${{ inputs.kernel_variant }}-${{ inputs.kernel_version }}-Android_12-5.10${{ if(inputs.use_make) }} (MAKE)${{ end }}
     uses: ./.github/workflows/kernel-a12-5-10.yml
     secrets: inherit
     with:
