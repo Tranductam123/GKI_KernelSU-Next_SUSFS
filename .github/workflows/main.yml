@@ -20,16 +20,16 @@ on:
           - Actions
           - Pre-Release
           - Release
-        default: Pre-Release
+        default: Actions
       kernel_variant:
         description: 'Choose Kernel Variant'
         required: true
         type: choice
         options:
-          - WKSU
+          - WILD
           - KSU
           - NEXT
-        default: WKSU
+        default: WILD
 
       kernelsu_branch:
         description: "Choose ksu branch"
@@ -113,7 +113,7 @@ jobs:
       - build-kernels-a15-6-6
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      RELEASE_NAME: "GKI Kernels With WKSU & SUSFS v1.5.9"
+      RELEASE_NAME: "GKI Kernels With WILD & SUSFS v1.5.9"
       RELEASE_BODY:
     steps:
       - name: Checkout code
@@ -166,7 +166,7 @@ jobs:
       
           [[ "$BRANCH" == "Stable" ]] && MODE="tag" || MODE="commit"
 
-          get_ref "WKSU" "https://github.com/WildKernels/Wild_KSU.git" "WildKernels/Wild_KSU" "$MODE"
+          get_ref "WILD" "https://github.com/WildKernels/Wild_KSU.git" "WildKernels/Wild_KSU" "$MODE"
           get_ref "KSU" "https://github.com/tiann/KernelSU.git" "tiann/KernelSU" "$MODE"
           get_ref "NEXT" "https://github.com/KernelSU-Next/KernelSU-Next.git" "KernelSU-Next/KernelSU-Next" "$MODE"
           
@@ -195,8 +195,8 @@ jobs:
           cat << 'EOF' > release_body.md
       
           Features:
-          -> WKSU Kernels & Others
-          -> Multi Manager Support for WKSU Manager & KernelSU Next Manager (Only Install One)
+          -> WILD Kernels & Others
+          -> Multi Manager Support for WILD Manager & KernelSU Next Manager (Only Install One)
           -> SUSFS ඞ v1.5.9
           -> Scope-Minimized Manual hooks v1.4
           -> Magic Mount Support
@@ -206,19 +206,19 @@ jobs:
           -> BBR Support
       
           Notes:
-          -> WKSU & KernelSU Next, SUS SU Mode 2 will show as disabled or not compatble due to non-kprobe hooks and is not needed anymore!
+          -> WILD & KernelSU Next, SUS SU Mode 2 will show as disabled or not compatble due to non-kprobe hooks and is not needed anymore!
           -> Official Kernel Flasher is broken with latest susfs, try https://github.com/fatalcoder524/KernelFlasher/ or https://github.com/libxzr/HorizonKernelFlasher!
       
           Module: 
           -> https://github.com/sidex15/ksu_module_susfs
       
           Managers:
-          -> WKSU: https://github.com/WildKernels/Wild_KSU
+          -> WILD: https://github.com/WildKernels/Wild_KSU
           -> KernelSU: https://github.com/tiann/KernelSU
           -> KernelSU-Next: https://github.com/KernelSU-Next/KernelSU-Next
       
           Commit Hashes (at the time of release):
-          -> WKSU: [${{ env.WKSU_REF }}](${{ env.WKSU_URL }})
+          -> WILD: [${{ env.WILD_REF }}](${{ env.WILD_URL }})
           -> KernelSU: [${{ env.KSU_REF }}](${{ env.KSU_URL }})
           -> KernelSU Next: [${{ env.NEXT_REF }}](${{ env.NEXT_URL }})
           -> SUSFS4KSU: 
@@ -253,16 +253,3 @@ jobs:
         run: |
           echo "GitHub release created with the following files:"
           ls ./downloaded-artifacts/**/*
-            
-      - name: Send Telegram Notification
-        run: |
-          curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -F chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -F message_thread_id="${{ secrets.TELEGRAM_MESSAGE_THREAD_ID }}" \
-            -F text="
-            🌽 *New Kernel Release Uploaded*  
-            📦 *Repository:* [${{ github.repository }}](https://github.com/${{ github.repository }})  
-            🗂️ *Branch:* ${{ github.ref_name }}  
-            ✏️ *Commit:* [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})  
-            [🔗 View GitHub Release](https://github.com/${{ github.repository }}/releases/tag/${{ env.NEW_TAG }})" \
-            -F parse_mode="Markdown"
