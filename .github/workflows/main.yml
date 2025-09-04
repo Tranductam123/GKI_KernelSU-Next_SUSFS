@@ -29,8 +29,7 @@ on:
           - WILD
           - KSU
           - NEXT
-        default: WILD
-
+        default: NEXT
       kernelsu_branch:
         description: "Choose ksu branch"
         required: true
