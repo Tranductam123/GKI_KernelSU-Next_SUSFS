@@ -651,5 +651,5 @@ jobs:
           name: ${{ inputs.kernelsu_variant }}-kernel-${{ env.CONFIG }}
           path: |
             *.zip
-            *.img.gz
+            *.img
             *Image*
