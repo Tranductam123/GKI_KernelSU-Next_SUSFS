@@ -12,6 +12,8 @@ on:
         required: true
         type: boolean
         default: true
+      check_make:
+         required: true
       release_type:
         description: "Choose Release Type"
         required: true
