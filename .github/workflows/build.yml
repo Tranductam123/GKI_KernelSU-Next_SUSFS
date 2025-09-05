@@ -626,12 +626,17 @@ jobs:
           ZIP_NAME="${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-AnyKernel3.zip"
           echo "Creating zip file: $ZIP_NAME..."
           zip -r "../$ZIP_NAME" ./*
-  
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ inputs.kernelsu_variant }}-kernel-${{ env.CONFIG }}
+          # ... previous steps ...
+      - name: Upload AnyKernel3 Image use MAKE
+          if: ${{ inputs.use_make == true }}
+          uses: actions/upload-artifact@v4
+          with:
+          name: ${{ inputs.kernelsu_variant }}-kernel-${{ env.CONFIG }}-raw
+          path: AnyKernel3/Image
+      - name: Upload Compressed Kernel ZIP (make=false)
+          if: ${{ inputs.use_make == false }}
+          uses: actions/upload-artifact@v4
+          with:
+          name: ${{ inputs.kernelsu_variant }}-kernel-${{ env.CONFIG }}-zip
           path: |
-            *.zip
-            *.img
-            *Image*
+                *.zip
