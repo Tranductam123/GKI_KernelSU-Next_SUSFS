@@ -387,15 +387,15 @@ jobs:
           CURRENT_TIME=$(date -u +"%a %b %d %H:%M:%S UTC %Y")
           if [ -f "build/build.sh" ]; then
               #Set Kernel Name
-              perl -0777 -pi -e 's/(echo "\$res")(?!.*echo "\$res")/echo "-v\$KSUVER-Tam"/s' ./common/scripts/setlocalversion
+              perl -0777 -pi -e 's/(echo "\$res")(?!.*echo "\$res")/echo "-v$KSUVER-Tam"/s' ./common/scripts/setlocalversion
               #Set Kernel Timestamp
-              perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 $CURRENT_TIME\"}' ./common/scripts/mkcompile_h
+              perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 $CURRENT_TIME"}' ./common/scripts/mkcompile_h
           else
               #Set Kernel Name
-              perl -pi -e 's{echo "\${KERNELVERSION}\${file_localversion}\${config_localversion}\${LOCALVERSION}\${scm_version}"}{echo "-v\$KSUVER-Tam"}' /scripts/setlocalversion
+              perl -pi -e 's{echo "\${KERNELVERSION}\${file_localversion}\${config_localversion}\${LOCALVERSION}\${scm_version}"}{echo "-v$KSUVER-Tam"}' /scripts/setlocalversion
               
               #Set Kernel Timestamp
-              perl -pi -e 's/build-timestamp = \$\(or \$\(KBUILD_BUILD_TIMESTAMP\), \$\(build-timestamp-auto\)\)/build-timestamp = "$CURRENT_TIME\"/' ./common/init/Makefile
+              perl -pi -e 's/build-timestamp = \$\(or \$\(KBUILD_BUILD_TIMESTAMP\), \$\(build-timestamp-auto\)\)/build-timestamp = "$CURRENT_TIME"/' ./common/init/Makefile
           fi
 
       - name: Add Build based configs
@@ -636,6 +636,6 @@ jobs:
         if: ${{ inputs.use_make == false }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.kernelsu_variant }}-kernel-v$KSU_VERSION-${{ env.CONFIG }}-zip
+          name: ${{ inputs.kernelsu_variant }}-kernel-v${{ env.KSUVER }}-${{ env.CONFIG }}-zip
           path: |
             *.zip
