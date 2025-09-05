@@ -38,8 +38,20 @@ jobs:
   build-gki:
     runs-on: ubuntu-latest
     timeout-minutes: 120
-
     steps:
+      - name: Maximize Build Space
+        if: ${{ github.event.inputs.use_make == 'false' }}
+        uses: AdityaGarg8/remove-unwanted-software@v5
+        with:
+          remove-dotnet: 'true'          # Frees ~2 GB
+          remove-android: 'true'         # Frees ~9 GB
+          remove-haskell: 'true'         # Frees ~5.2 GB
+          remove-codeql: 'true'          # Frees ~5.4 GB
+          remove-docker-images: 'true'   # Frees ~3.2 GB
+          remove-large-packages: 'true'  # Frees ~3.1 GB
+          remove-swapfile: 'true'        # Frees ~4 GB
+          remove-cached-tools: 'false'   # Avoid unless confirmed safe
+          verbose: 'true'                # Enable detailed logging     
       - name: Set CONFIG Environment Variable
         run: |
           # Set CONFIG dynamically based on inputs values
@@ -509,29 +521,6 @@ jobs:
           
           make -j$(nproc --all) O=out $MAKE_ARGS KCFLAGS+="-Wno-error -O2 -flto=thin -fno-stack-protector" gki_defconfig || exit 1
           make -j$(nproc --all) O=out $MAKE_ARGS KCFLAGS+="-Wno-error -O2 -flto=thin -fno-stack-protector" || exit 1
-      - name: Create Bootimgs Folder and Copy Images for Android 12/13
-        if: ${{ (inputs.android_version == 'android12-' || inputs.android_version == 'android13-' || inputs.android_version == 'android13-') && inputs.use_make == 'false' }}
-        run: |
-          mkdir bootimgs
-          echo "Creating bootimgs folder and copying images..."
-          cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image ./bootimgs
-          cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image.lz4 ./bootimgs
-          cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image ./
-          cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image.lz4 ./
-      - name: Create Bootimgs Folder and Copy Images for Android 14/15
-        if: ${{ (inputs.android_version == 'android14' || inputs.android_version == 'android15') && inputs.use_make == 'false' }}
-        run: |
-          mkdir bootimgs
-
-          echo "Creating bootimgs folder and copying images..."
-          cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image ./bootimgs
-          cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image.lz4 ./bootimgs
-          cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image ./
-          cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image.lz4 ./
-
-          # Create gzip of the Image file
-          gzip -n -k -f -9 ./Image > ./Image.gz
-
       - name: Create ZIP Files for Different Formats
         if: ${{ inputs.use_make == 'false' }}
         run: |
@@ -544,7 +533,7 @@ jobs:
           zip -r "../$ZIP_NAME" ./*
           rm ./Image
       - name: Android 12 boot image build script
-        if: ${{ inputs.android_version == 'android12-' && inputs.use_make == 'false' }}
+        if: ${{ inputs.android_version == 'android12-' || inputs.use_make == 'false' }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd bootimgs
@@ -574,27 +563,21 @@ jobs:
           
           echo "Running unpack_bootimg.py..."
           $UNPACK_BOOTIMG --boot_img="$FULL_PATH"
-          
-          # Create gzip of the Image file
-          gzip -n -k -f -9 ./Image > ./Image.gz
-          
           echo "Building boot.img"
           $MKBOOTIMG --header_version 4 --kernel Image --output boot.img --ramdisk out/ramdisk --os_version 12.0.0 --os_patch_level "${{ inputs.os_patch_level }}"
           $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
           cp ./boot.img ../${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot.img
-          
           echo "Building boot-gz.img"
           $MKBOOTIMG --header_version 4 --kernel Image.gz --output boot-gz.img --ramdisk out/ramdisk --os_version 12.0.0 --os_patch_level "${{ inputs.os_patch_level }}"
           $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot-gz.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
           cp ./boot-gz.img ../${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot-gz.img
-          
           echo "Building boot-lz4.img"
           $MKBOOTIMG --header_version 4 --kernel Image.lz4 --output boot-lz4.img --ramdisk out/ramdisk --os_version 12.0.0 --os_patch_level "${{ inputs.os_patch_level }}"
           $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot-lz4.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
           cp ./boot-lz4.img ../${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot-lz4.img
 
       - name: Android 13/14/15 boot image build script
-        if: ${{ (inputs.android_version == 'android13-5.10' || inputs.android_version == 'android13-5.15' || inputs.android_version == 'android14-5.15' || inputs.android_version == 'android14' || inputs.android_version == 'android15') && inputs.use_make == 'false' }}
+        if: ${{ (inputs.android_version == 'android13-' || inputs.android_version == 'android14-' || inputs.android_version == 'android15-') || inputs.use_make == 'false' }}
         run: |
           cd bootimgs
           echo "Building boot.img"
@@ -628,21 +611,22 @@ jobs:
           
           # Create ZIP file
           cd AnyKernel3
-          ZIP_NAME="${{ inputs.kernelsu_variant }}-v${{ env.KSUVER }}-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-AnyKernel3.zip"
-          echo "Creating zip file: $ZIP_NAME..."
-          zip -r "../$ZIP_NAME" ./*
-      - name: Upload AnyKernel3 Image use MAKE
+          if ${{ inputs.use_make }} = false
+              ZIP_NAME="${{ inputs.kernelsu_variant }}-v${{ env.KSUVER }}-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-AnyKernel3.zip"
+              echo "Creating zip file: $ZIP_NAME..."
+              zip -r "../$ZIP_NAME" ./*
+      - name: Upload AnyKernel3
         if: ${{ inputs.use_make == true }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.kernelsu_variant }}-kernel-v${{ env.KSUVER }}-${{ env.CONFIG }}-raw
+          name: ${{ inputs.kernelsu_variant }}-kernel-v${{ env.KSUVER }}-${{ env.CONFIG }}-AnyKernel3
           path: AnyKernel3
-      - name: Upload Compressed Kernel ZIP not use MAKE
+      - name: Upload Kernel zip
         if: ${{ inputs.use_make == false }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.kernelsu_variant }}-kernel-v${{ env.KSUVER }}-${{ env.CONFIG }}-zip
+          name: ${{ inputs.kernelsu_variant }}-kernel-v${{ env.KSUVER }}-${{ env.CONFIG }}
           path: |
             *.zip
-            *.img.gz
+            *.img
             *Image*
