@@ -630,3 +630,9 @@ jobs:
             *.zip
             *.img
             *Image*
+      - name: Set up for git push
+        env:
+          TOKEN: ${{ secrets.GKI_BUILD_KERNEL_TOKEN }}
+        run: git remote set-url origin https://x-access-token:${TOKEN}@github.com/Tam97123/GKI_KernelSU_SUSFS.git
+      - name: Push changes
+        run: git push origin HEAD:refs/heads/${GITHUB_REF_NAME}
