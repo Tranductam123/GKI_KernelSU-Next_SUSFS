@@ -615,6 +615,7 @@ jobs:
               ZIP_NAME="${{ inputs.kernelsu_variant }}-v${{ env.KSUVER }}-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-AnyKernel3.zip"
               echo "Creating zip file: $ZIP_NAME..."
               zip -r "../$ZIP_NAME" ./*
+          fi
       - name: Upload AnyKernel3
         if: ${{ inputs.use_make == true }}
         uses: actions/upload-artifact@v4
