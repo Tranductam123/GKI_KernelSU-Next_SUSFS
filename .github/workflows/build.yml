@@ -636,6 +636,6 @@ jobs:
         if: ${{ inputs.use_make == false }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.kernelsu_variant }-kernel-v${{ inputs.kernel_version }}-${{ env.CONFIG }}-zip
+          name: ${{ inputs.kernelsu_variant }}-kernel-v${{ inputs.kernel_version }}-${{ env.CONFIG }}-zip
           path: |
             *.zip
