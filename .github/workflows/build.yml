@@ -606,7 +606,6 @@ jobs:
       - name: Create Kernel ZIP
         run: |
           echo "Creating kernel ZIP..."
-          
           if [ ${{ inputs.use_make }} == true ]; then
             # Copy Image for make=true builds
             cp $CONFIG/common/out/arch/arm64/boot/Image AnyKernel3/Image
@@ -628,15 +627,15 @@ jobs:
           zip -r "../$ZIP_NAME" ./*
           # ... previous steps ...
       - name: Upload AnyKernel3 Image use MAKE
-          if: ${{ inputs.use_make == true }}
-          uses: actions/upload-artifact@v4
-          with:
-          name: ${{ inputs.kernelsu_variant }}-kernel-${{ env.CONFIG }}-raw
+        if: ${{ inputs.use_make == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.kernelsu_variant }}-${{ inputs.kernel_version }}-${{ env.CONFIG }}-raw
           path: AnyKernel3/Image
-      - name: Upload Compressed Kernel ZIP (make=false)
-          if: ${{ inputs.use_make == false }}
-          uses: actions/upload-artifact@v4
-          with:
-          name: ${{ inputs.kernelsu_variant }}-kernel-${{ env.CONFIG }}-zip
+      - name: Upload Compressed Kernel ZIP not use MAKE
+        if: ${{ inputs.use_make == false }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.kernelsu_variant }}-${{ inputs.kernel_version. }}-${{ env.CONFIG }}-zip
           path: |
-                *.zip
+            *.zip
