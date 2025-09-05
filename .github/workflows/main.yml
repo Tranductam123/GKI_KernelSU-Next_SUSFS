@@ -110,8 +110,8 @@ jobs:
       - build-kernels-a14-6-1
       - build-kernels-a15-6-6
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      RELEASE_NAME: "GKI Kernels With NEXT & SUSFS v1.5.9"
+      TOKEN: ${{ secrets.GKI_KERNELS_BUILD_TOKEN }}
+      RELEASE_NAME: "GKI Kernels With KernelSU Next & SUSFS v1.5.9"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
