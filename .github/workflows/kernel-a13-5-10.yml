@@ -17,6 +17,9 @@ on:
         required: false
         type: string
         default: ""
+      kernel_uname:
+        required: false
+        type: string
       use_make:
         required: true
         type: boolean
