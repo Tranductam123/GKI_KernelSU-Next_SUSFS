@@ -363,21 +363,16 @@ jobs:
         if: ${{ inputs.use_make == false }}
         run: |
           cd "$CONFIG"
-          # Determine kernel name suffix
-          if [ -z "${{ inputs.kernel_uname }}" ]; then
-            KERNEL_SUFFIX="-v$KSUVER-Tam"
-          else
-            KERNEL_SUFFIX="${{ inputs.kernel_uname }}"
           if [ -f "build/build.sh" ]; then
               perl -pi -e 's/-dirty//' ./common/scripts/setlocalversion
-              perl -0777 -pi -e 's/(echo "\$res")(?!.*echo "\$res")/echo "-'$KERNEL_SUFFIX'"/s' ./common/scripts/setlocalversion
+              perl -0777 -pi -e 's/(echo "\$res")(?!.*echo "\$res")/echo "\${{ inputs.kernel_uname }}"/s' ./common/scripts/setlocalversion
               perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 Tue Apr 22 05:30:00 UTC 2025"}' ./common/scripts/mkcompile_h
           else
               #Remove -maybe-dirty
               perl -pi -e 's/-maybe-dirty//g' ./build/kernel/kleaf/impl/stamp.bzl
               
               #Set Kernel Name
-              echo "CONFIG_LOCALVERSION=\"-$KERNEL_SUFFIX\"" >> ./common/arch/arm64/configs/gki_defconfig
+              echo "CONFIG_LOCALVERSION=\"${{ inputs.kernel_uname }}\"" >> ./common/arch/arm64/configs/gki_defconfig
 
               #Set Kernel Timestamp
               perl -pi -e 's/build-timestamp = \$\(or \$\(KBUILD_BUILD_TIMESTAMP\), \$\(build-timestamp-auto\)\)/build-timestamp = "Tue Apr 22 05:30:00 UTC 2025"/' ./common/init/Makefile
@@ -404,20 +399,16 @@ jobs:
         if: ${{ inputs.use_make == true }}
         run: |
           cd "$CONFIG"
-          # Determine kernel name suffix
-          if [ -z "${{ inputs.kernel_uname }}" ]; then
-            KERNEL_SUFFIX="-v$KSUVER-Tam"
-          else
-            KERNEL_SUFFIX="${{ inputs.kernel_uname }}"
+
           perl -pi -e 's/-dirty//' ./common/scripts/setlocalversion
           if [ -f "build/build.sh" ]; then
               #Set Kernel Name
-              perl -0777 -pi -e 's/(echo "\$res")(?!.*echo "\$res")/echo "-'$KERNEL_SUFFIX'"/s' ./common/scripts/setlocalversion
+              perl -0777 -pi -e 's/(echo "\$res")(?!.*echo "\$res")/echo "\${{ inputs.kernel_uname }}"/s' ./common/scripts/setlocalversion
               #Set Kernel Timestamp
               perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 Tue Apr 22 05:30:00 UTC 2025"}' ./common/scripts/mkcompile_h
           else
               #Set Kernel Name
-              perl -pi -e 's{echo "\${KERNELVERSION}\${file_localversion}\${config_localversion}\${LOCALVERSION}\${scm_version}"}{echo "${KERNELVERSION}${file_localversion}${config_localversion}${LOCALVERSION}${scm_version}-$KERNEL_SUFFIX}' /scripts/setlocalversion
+              perl -pi -e 's{echo "\${KERNELVERSION}\${file_localversion}\${config_localversion}\${LOCALVERSION}\${scm_version}"}{echo "${KERNELVERSION}${file_localversion}${config_localversion}${LOCALVERSION}${scm_version}${{ inputs.kernel_uname }}' /scripts/setlocalversion
               
               #Set Kernel Timestamp
               perl -pi -e 's/build-timestamp = \$\(or \$\(KBUILD_BUILD_TIMESTAMP\), \$\(build-timestamp-auto\)\)/build-timestamp = "Tue Apr 22 05:30:00 UTC 2025"/' ./common/init/Makefile
