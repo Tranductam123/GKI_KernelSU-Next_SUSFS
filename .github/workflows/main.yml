@@ -32,7 +32,7 @@ on:
         default: NEXT
       kernel_uname:
         description: 'Set kernel uname (exmaple: name after 6.1.90 or leave blank for no name)'
-        required: true
+        required: false
         type: string
         default: ""
       kernelsu_branch:
