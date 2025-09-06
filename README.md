@@ -1,4 +1,4 @@
-# Wild Kernels for Android
+# Kernels for Android
 
 ## Your warranty is no longer valid!
 
@@ -71,16 +71,10 @@ Flashing this kernel will void your warranty, and there is always a risk of bric
 
 ---
 
-[Telegram](https://t.me/TheWildJames)  
-[Telegram Group](https://t.me/Wild_Kernels)  
-
 # Special thanks to the following people for their contributions!
 This helps me alot! <3
 
 [simonpunk](https://gitlab.com/simonpunk/susfs4ksu.git) - Created SUSFS!  
 [sidex15](https://github.com/sidex15) - Created module!  
-[backslashxx](https://github.com/backslashxx) - Helped with patches!  
-[Teemo](https://github.com/liqideqq) - Helped with patches!  
-[幕落](https://github.com/MuLuo688) - Donation!
 
 If you have contributed and are not here please remind me!
