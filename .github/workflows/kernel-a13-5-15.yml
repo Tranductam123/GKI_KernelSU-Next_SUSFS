@@ -1,4 +1,4 @@
-ename: Kernel Config - A13 5.15
+name: Kernel Config - A13 5.15
 
 permissions:
   contents: write  # Allow writing to repository contents
