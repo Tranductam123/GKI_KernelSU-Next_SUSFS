@@ -670,7 +670,7 @@ jobs:
             *Image*
       - name: Set up for git push
         env:
-          TOKEN: ${{ secrets.GKI_KERNEL_TOKEN }}
+          TOKEN: ${{ secrets.GKI_KERNELS_BUILD_TOKEN }}
         run: git remote set-url origin https://x-access-token:${TOKEN}@github.com/Tam97123/GKI_KernelSU_SUSFS.git
 
       - name: Push changes
