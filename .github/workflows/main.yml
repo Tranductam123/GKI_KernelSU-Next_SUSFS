@@ -31,7 +31,7 @@ on:
           - NEXT
         default: NEXT
       kernel_uname:
-        description: 'Set kernel uname (exmaple: name after 6.1.90 or leave blank for no name)'
+        description: 'Set kernel uname (Exmaple: Kernel uname after 6.1.90(Kerrnel Uname) or leave blank)'
         required: false
         type: string
         default: ""
