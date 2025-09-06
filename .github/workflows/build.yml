@@ -404,7 +404,7 @@ jobs:
               perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 Tue Apr 22 05:30:00 UTC 2025"}' ./common/scripts/mkcompile_h
           else
               #Set Kernel Name
-              perl -pi -e 's{echo "\${KERNELVERSION}\${file_localversion}\${config_localversion}\${LOCALVERSION}\${scm_version}"}{echo "${KERNELVERSION}${file_localversion}${config_localversion}${LOCALVERSION}${scm_version}"/echo "-v$KSUVER-Tam"/' ./common/scripts/setlocalversion
+              perl -pi -e 's{echo "\${KERNELVERSION}\${file_localversion}\${config_localversion}\${LOCALVERSION}\${scm_version}"}{echo "${KERNELVERSION}${file_localversion}${config_localversion}${LOCALVERSION}${scm_version}-v$KSUVER-Tam}' /scripts/setlocalversion
               
               #Set Kernel Timestamp
               perl -pi -e 's/build-timestamp = \$\(or \$\(KBUILD_BUILD_TIMESTAMP\), \$\(build-timestamp-auto\)\)/build-timestamp = "Tue Apr 22 05:30:00 UTC 2025"/' ./common/init/Makefile
