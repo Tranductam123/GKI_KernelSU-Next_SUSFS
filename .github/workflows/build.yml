@@ -31,7 +31,7 @@ on:
         required: false
         type: string
       kernel_uname:
-        required: true
+        required: false
         type: string
       revision:
         required: false
@@ -43,20 +43,6 @@ jobs:
     timeout-minutes: 120
 
     steps:
-      # - name: Maximize Build Space
-        # if: ${{ inputs.use_make == false }}
-        # uses: AdityaGarg8/remove-unwanted-software@v5
-        # with:
-        #  remove-dotnet: 'true'          # Frees ~2 GB
-        #  remove-android: 'true'         # Frees ~9 GB
-        #  remove-haskell: 'true'         # Frees ~5.2 GB
-        #  remove-codeql: 'true'          # Frees ~5.4 GB
-        #  remove-docker-images: 'true'   # Frees ~3.2 GB
-        #  remove-large-packages: 'true'  # Frees ~3.1 GB
-        #  remove-swapfile: 'true'        # Frees ~4 GB
-        #  remove-cached-tools: 'false'   # Avoid unless confirmed safe
-        #  verbose: 'true'                # Enable detailed logging
-          
       - name: Set CONFIG Environment Variable
         run: |
           # Set CONFIG dynamically based on inputs values
@@ -129,7 +115,7 @@ jobs:
                 echo "BRANCH=-s main" >> $GITHUB_ENV
               elif [[ "${{ inputs.kernelsu_variant }}" == "NEXT" ]]; then
                 echo "BRANCH=-s next" >> $GITHUB_ENV
-              elif [[ "${{ inputs.kernelsu_variant }}" == "WKSU" ]]; then
+              elif [[ "${{ inputs.kernelsu_variant }}" == "WILD" ]]; then
                 echo "BRANCH=-s wild" >> $GITHUB_ENV
               fi
               ;;
@@ -149,8 +135,8 @@ jobs:
           cd "$CONFIG"
       
           case "${{ inputs.kernelsu_variant }}" in
-            "WKSU")
-              echo "Adding WKSU..."
+            "WILD")
+              echo "Adding WILD..."
               curl -LSs "https://raw.githubusercontent.com/WildKernels/Wild_KSU/wild/kernel/setup.sh" | bash ${{ env.BRANCH }}
               ;;
             "KSU")
@@ -180,8 +166,8 @@ jobs:
           cp ../susfs4ksu/kernel_patches/include/linux/* ./common/include/linux/
           
           case "${{ inputs.kernelsu_variant }}" in
-            "WKSU")
-              echo "Applying SUSFS patches for WKSU..."
+            "WILD")
+              echo "Applying SUSFS patches for WILD..."
               cd ./Wild_KSU
               cp ../../susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch ./
               patch -p1 --forward < 10_enable_susfs_for_ksu.patch || true
@@ -234,8 +220,8 @@ jobs:
           cd "$CONFIG"
           
           case "${{ inputs.kernelsu_variant }}" in
-            "WKSU")
-              echo "Getting KSU Version for WKSU..."
+            "WILD")
+              echo "Getting KSU Version for WILD..."
               cd ./Wild_KSU
               BASE_VERSION=10200
               ;;
@@ -264,8 +250,8 @@ jobs:
             echo "Applying hooks for KernelSU-Next..."
             cp ../../kernel_patches/next/scope_min_manual_hooks_v1.4.patch ./
             patch -p1 --forward -F 3 < scope_min_manual_hooks_v1.4.patch
-          elif [ "${{ inputs.kernelsu_variant }}" == "WKSU" ]; then
-            echo "Applying hooks for WKSU..."
+          elif [ "${{ inputs.kernelsu_variant }}" == "WILD" ]; then
+            echo "Applying hooks for WILD..."
             cp ../../kernel_patches/wild/hooks/scope_min_manual_hooks_v1.4.patch ./
             patch -p1 --forward -F 3 < scope_min_manual_hooks_v1.4.patch
           fi
@@ -307,7 +293,7 @@ jobs:
           # Add KSU configuration settings
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
           
-          if [ "${{ inputs.kernelsu_variant }}" == "NEXT" ] || [ "${{ inputs.kernelsu_variant }}" == "WKSU" ]; then
+          if [ "${{ inputs.kernelsu_variant }}" == "NEXT" ] || [ "${{ inputs.kernelsu_variant }}" == "WILD" ]; then
             echo "CONFIG_KSU_KPROBES_HOOK=n" >> ./common/arch/arm64/configs/gki_defconfig
           fi
                     
@@ -353,7 +339,7 @@ jobs:
           echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
 
-          if [ "${{ inputs.kernelsu_variant }}" == "NEXT" ] || [ "${{ inputs.kernelsu_variant }}" == "WKSU" ]; then
+          if [ "${{ inputs.kernelsu_variant }}" == "NEXT" ] || [ "${{ inputs.kernelsu_variant }}" == "WILD" ]; then
             echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
           else
             echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig
@@ -519,43 +505,17 @@ jobs:
           
           make -j$(nproc --all) O=out $MAKE_ARGS KCFLAGS+="-Wno-error -O2 -flto=thin -fno-stack-protector" gki_defconfig || exit 1
           make -j$(nproc --all) O=out $MAKE_ARGS KCFLAGS+="-Wno-error -O2 -flto=thin -fno-stack-protector" || exit 1
-
-      - name: Create Kernel ZIP
-        run: |
-          echo "Creating kernel ZIP..."
-          
-          if [ ${{ inputs.use_make }} == true ]; then
-            # Copy Image for make=true builds
-            cp $CONFIG/common/out/arch/arm64/boot/Image AnyKernel3/Image
-          else
-            # Copy Image for make=false builds based on Android version
-            if [ "${{ inputs.android_version }}" = "android12" ] || [ "${{ inputs.android_version }}" = "android13" ]; then
-              echo "Copying images for Android 12/13..."
-              cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image AnyKernel3/Image
-            elif [ "${{ inputs.android_version }}" = "android14" ] || [ "${{ inputs.android_version }}" = "android15" ]; then
-              echo "Copying images for Android 14/15..."
-              cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image AnyKernel3/Image
-          cd AnyKernel3
-          ZIP_NAME="${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-AnyKernel3.zip"
-          echo "Creating zip file: $ZIP_NAME..."
-          zip -r "../$ZIP_NAME" ./*
-
       - name: Create Bootimgs Folder and Copy Images for Android 12/13
-        if: ${{ inputs.android_version == 'android12' || inputs.android_version == 'android13' && inputs.use_make == false }}
+        if: ${{ (inputs.android_version == 'android12' || inputs.android_version == 'android13' && inputs.use_make == 'false' }}
         run: |
           mkdir bootimgs
-
           echo "Creating bootimgs folder and copying images..."
           cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image ./bootimgs
           cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image.lz4 ./bootimgs
           cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image ./
           cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image.lz4 ./
-
-          # Create gzip of the Image file
-          gzip -n -k -f -9 ./Image > ./Image.gz
-
       - name: Create Bootimgs Folder and Copy Images for Android 14/15
-        if: ${{ inputs.android_version == 'android14' || inputs.android_version == 'android15' && inputs.use_make == false }}
+        if: ${{ (inputs.android_version == 'android14' || inputs.android_version == 'android15') && inputs.use_make == 'false' }}
         run: |
           mkdir bootimgs
 
@@ -568,20 +528,8 @@ jobs:
           # Create gzip of the Image file
           gzip -n -k -f -9 ./Image > ./Image.gz
 
-      - name: Create ZIP Files for Different Formats
-        run: |
-          echo "Creating zip files for all formats..."
-          cd ./AnyKernel3
-          
-          # Create ZIP file
-          ZIP_NAME="${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-AnyKernel3.zip"
-          echo "Creating zip file: $ZIP_NAME..."
-          mv ../Image ./Image
-          zip -r "../$ZIP_NAME" ./*
-          rm ./Image
-
       - name: Android 12 boot image build script
-        if: ${{ inputs.android_version == 'android12' || inputs.use_make == false }}
+        if: ${{ inputs.android_version == 'android12' && inputs.use_make == 'false' }}
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd bootimgs
@@ -631,47 +579,49 @@ jobs:
           cp ./boot-lz4.img ../${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot-lz4.img
 
       - name: Android 13/14/15 boot image build script
-        if: ${{ inputs.android_version == 'android13' || inputs.android_version == 'android14' || inputs.android_version == 'android15' || inputs.use_make == false }}
+        if: ${{ (inputs.android_version == 'android13' || inputs.android_version == 'android14' || inputs.android_version == 'android15') && inputs.use_make == 'false' }}
         run: |
           cd bootimgs
-
-          # Create gzip of the Image file
-          gzip -n -k -f -9 ./Image > ./Image.gz
-          
           echo "Building boot.img"
           $MKBOOTIMG --header_version 4 --kernel Image --output boot.img
           $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
-          cp ./boot.img ../${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot.img
-          
+          cp ./boot.img ../${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot.img        
           echo "Building boot-gz.img"
           $MKBOOTIMG --header_version 4 --kernel Image.gz --output boot-gz.img
           $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot-gz.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
           cp ./boot-gz.img ../${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot-gz.img
-          
           echo "Building boot-lz4.img"
           $MKBOOTIMG --header_version 4 --kernel Image.lz4 --output boot-lz4.img
           $AVBTOOL add_hash_footer --partition_name boot --partition_size $((64 * 1024 * 1024)) --image boot-lz4.img --algorithm SHA256_RSA2048 --key $BOOT_SIGN_KEY_PATH
           cp ./boot-lz4.img ../${{ inputs.kernelsu_variant }}-$KSUVER-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-boot-lz4.img
-          
-      - name: Compress all img files with gzip
-        if: ${{ inputs.use_make == false }}
+      - name: Create Kernel ZIP
         run: |
-          for image in *.img; do
-            gzip -vnf9 "$image"
-          done
-  
-      - name: Upload Build Artifacts
+          echo "Creating kernel ZIP..."
+          if [ ${{ inputs.use_make }} == true ]; then
+            # Copy Image for make=true builds
+            cp $CONFIG/common/out/arch/arm64/boot/Image AnyKernel3/Image
+          else
+            # Copy Image for make=false builds based on Android version
+            if [ "${{ inputs.android_version }}" = "android12" ] || [ "${{ inputs.android_version }}" = "android13" ]; then
+              echo "Copying images for Android 12/13..."
+              cp ./$CONFIG/out/${{ inputs.android_version }}-${{ inputs.kernel_version }}/dist/Image AnyKernel3/Image
+            elif [ "${{ inputs.android_version }}" = "android14" ] || [ "${{ inputs.android_version }}" = "android15" ]; then
+              echo "Copying images for Android 14/15..."
+              cp ./$CONFIG/bazel-bin/common/kernel_aarch64/Image AnyKernel3/Image
+            fi
+          fi
+          
+          # Create ZIP file
+          cd AnyKernel3
+          ZIP_NAME="${{ inputs.kernelsu_variant }}-v${{ env.KSUVER }}-${{ inputs.android_version }}-${{ inputs.kernel_version }}.${{ inputs.sub_level }}-${{ inputs.os_patch_level }}-AnyKernel3.zip"
+          echo "Creating zip file: $ZIP_NAME..."
+          zip -r "../$ZIP_NAME" ./*
+
+      - name: Upload Kernel ZIP 
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.kernelsu_variant }}-kernel-v${{ env.KSUVER }}-${{ env.CONFIG }}
+          name: ${{ inputs.kernelsu_variant }}-kernel-v${{ env.KSUVER }}-${{ env.CONFIG }}-zip
           path: |
             *.zip
             *.img.gz
             *Image*
-      - name: Set up for git push
-        env:
-          TOKEN: ${{ secrets.GKI_KERNELS_BUILD_TOKEN }}
-        run: git remote set-url origin https://x-access-token:${TOKEN}@github.com/Tam97123/GKI_KernelSU_SUSFS.git
-
-      - name: Push changes
-        run: git push origin HEAD:refs/heads/${GITHUB_REF_NAME}
