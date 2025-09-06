@@ -58,6 +58,7 @@ jobs:
       kernelsu_variant: ${{ inputs.kernel_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      kernel_uname: ${{ inputs.kernel_uname }}
       use_make: ${{ inputs.use_make }}
   build-kernels-a13-5-10:
     name: ${{ inputs.kernel_variant }}-Android_13-5.10
@@ -67,6 +68,7 @@ jobs:
       kernelsu_variant: ${{ inputs.kernel_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      kernel_uname: ${{ inputs.kernel_uname }}
       use_make: ${{ inputs.use_make }}
   build-kernels-a13-5-15:
     name: ${{ inputs.kernel_variant }}-Android_13-5.15
@@ -76,6 +78,7 @@ jobs:
       kernelsu_variant: ${{ inputs.kernel_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      kernel_uname: ${{ inputs.kernel_uname }}
       use_make: ${{ inputs.use_make }}
   build-kernels-a14-5-15:
     name: ${{ inputs.kernel_variant }}-Android_14-5.15
@@ -85,6 +88,7 @@ jobs:
       kernelsu_variant: ${{ inputs.kernel_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      kernel_uname: ${{ inputs.kernel_uname }}
       use_make: ${{ inputs.use_make }}
   build-kernels-a14-6-1:
     name: ${{ inputs.kernel_variant }}-Android_14-6.1
@@ -94,6 +98,7 @@ jobs:
       kernelsu_variant: ${{ inputs.kernel_variant }}
       kernelsu_branch: ${{ inputs.kernelsu_branch }}
       kernelsu_branch_other: ${{ inputs.kernelsu_branch_other }}
+      kernel_uname: ${{ inputs.kernel_uname }}
       use_make: ${{ inputs.use_make }}
   build-kernels-a15-6-6:
     name: ${{ inputs.kernel_variant }}-Android_15-6.6
