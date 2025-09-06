@@ -30,6 +30,11 @@ on:
       kernelsu_branch_other:
         required: false
         type: string
+      kernel_uname:
+        description: 'Set kernel uname (exmaple: name after 6.1.90 or leave blank for no name)'
+        required: true
+        type: string
+        default: ""
       revision:
         required: false
         type: string
