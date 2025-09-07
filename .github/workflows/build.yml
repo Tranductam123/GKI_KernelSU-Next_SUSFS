@@ -629,9 +629,8 @@ jobs:
             *.img.gz
             *Image*
       - name: Set up for git push
+        if: ${{ inputs.release_type == Pre-release || inputs.release_type == Release }}
         env:
           TOKEN: ${{ secrets.GKI_KERNELS_BUILD_TOKEN }}
         run: git remote set-url origin https://x-access-token:${TOKEN}@github.com/Tam97123/GKI_KernelSU_SUSFS.git
-
-      - name: Push changes
-        run: git push origin HEAD:refs/heads/${GITHUB_REF_NAME}
+        
