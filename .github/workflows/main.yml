@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       use_make:
-        description: 'Build with MAKE?'
+        description: 'Build with MAKE (get ak3 file only)?'
         required: true
         type: boolean
         default: true
@@ -31,7 +31,7 @@ on:
           - NEXT
         default: NEXT
       kernel_uname:
-        description: 'Set kernel uname (Exmaple: Kernel uname after 6.1.90(Kerrnel Uname) or leave blank)'
+        description: 'Set kernel uname (Exmaple: Kernel uname after 6.1.90(XXX) or leave blank)'
         required: false
         type: string
         default: ""
